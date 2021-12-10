@@ -11,6 +11,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 from nltk import word_tokenize
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, classification_report
+import pickle
+
 
 def preprocess_pandas(data, columns):
     df_ = pd.DataFrame(columns=columns)
@@ -29,8 +31,23 @@ def preprocess_pandas(data, columns):
         }, ignore_index=True)
     return data
 
+def accuracy(iterator): #get network accuracy on a dataset
+    total = 0
+    success = 0
+    for batch_nr, (data, labels) in enumerate(iterator):
+        pred = network(data)
+
+        for p,label in zip(pred,labels):
+            guess = torch.argmax(p, dim=-1)
+            total+=1
+            if guess.item() == label.item():
+                success+=1
+
+    return success/total    
+
 # If this is the primary file that is executed (ie not an import of another file)
 if __name__ == "__main__":
+
     # get data, pre-process and split
     data = pd.read_csv("amazon_cells_labelled.txt", delimiter='\t', header=None)
     data.columns = ['Sentence', 'Class']
@@ -43,16 +60,70 @@ if __name__ == "__main__":
         test_size=0.10,
         random_state=0,
         shuffle=True
-    )
-
+    )   
     # vectorize data using TFIDF and transform for PyTorch for scalability
     word_vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1,2), max_features=50000, max_df=0.5, use_idf=True, norm='l2')
     training_data = word_vectorizer.fit_transform(training_data)        # transform texts to sparse matrix
     training_data = training_data.todense()                             # convert to dense matrix for Pytorch
     vocab_size = len(word_vectorizer.vocabulary_)
+    #print(vocab_size)
     validation_data = word_vectorizer.transform(validation_data)
     validation_data = validation_data.todense()
     train_x_tensor = torch.from_numpy(np.array(training_data)).type(torch.FloatTensor)
+
     train_y_tensor = torch.from_numpy(np.array(training_labels)).long()
     validation_x_tensor = torch.from_numpy(np.array(validation_data)).type(torch.FloatTensor)
     validation_y_tensor = torch.from_numpy(np.array(validation_labels)).long()
+    #fix dataset
+    training_dataset = TensorDataset(train_x_tensor, train_y_tensor)
+    validation_dataset = TensorDataset(validation_x_tensor, validation_y_tensor)
+    train_loader = DataLoader(training_dataset, batch_size=50, shuffle=True)
+    validation_loader = DataLoader(validation_dataset, batch_size=50, shuffle=False)
+
+    #network classifier
+    
+    '''softmax for probability for each option, can be used to implement logic for the bot in case the input is unclear'''
+    network = nn.Sequential( 
+    nn.Linear(vocab_size, 50),
+    nn.ReLU(),
+    nn.Linear(50, 2), 
+    nn.Softmax(dim=1) #axis
+    )
+    #hyperparameters
+    optimizer = torch.optim.Adam(network.parameters(), lr = 0.02)
+    loss_function = nn.CrossEntropyLoss() 
+    epochs = 1
+    #training
+    
+    def train(train_loader):
+        t_losses=[]
+
+        for epoch in range(epochs):
+            t_loss = 0
+            for batch_nr, (data, label) in enumerate(train_loader):
+
+                prediction = network(data)   
+                loss = loss_function(prediction, label) 
+
+                t_loss += loss.item()
+
+                loss.backward()
+
+                optimizer.step()
+
+                optimizer.zero_grad()
+
+                #Print the epoch, batch, and loss
+                print(
+                    '\rEpoch {} [{}/{}] - t_loss: {}'.format(
+                        epochs, batch_nr+1, len(train_loader), loss
+                    ),
+                    end=''
+                )
+        print("\nDone!")
+
+    train(train_loader)
+    x=accuracy(validation_loader)
+    print("Accuracy = "+str(x*100)+"%")
+    torch.save(network, "network.pth")
+    pickle.dump(word_vectorizer, open("word_vectorizer.pickle", "wb"))
