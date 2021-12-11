@@ -49,7 +49,7 @@ def accuracy(iterator): #get network accuracy on a dataset
 if __name__ == "__main__":
 
     # get data, pre-process and split
-    data = pd.read_csv("amazon_cells_labelled.txt", delimiter='\t', header=None)
+    data = pd.read_csv("D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\amazon_cells_labelled.txt", delimiter='\t', header=None)
     data.columns = ['Sentence', 'Class']
     data['index'] = data.index                                          # add new column index
     columns = ['index', 'Class', 'Sentence']
@@ -77,8 +77,8 @@ if __name__ == "__main__":
     #fix dataset
     training_dataset = TensorDataset(train_x_tensor, train_y_tensor)
     validation_dataset = TensorDataset(validation_x_tensor, validation_y_tensor)
-    train_loader = DataLoader(training_dataset, batch_size=50, shuffle=True)
-    validation_loader = DataLoader(validation_dataset, batch_size=50, shuffle=False)
+    train_loader = DataLoader(training_dataset, batch_size=1, shuffle=True)
+    validation_loader = DataLoader(validation_dataset, batch_size=1, shuffle=False)
 
     #network classifier
     
@@ -86,17 +86,18 @@ if __name__ == "__main__":
     network = nn.Sequential( 
     nn.Linear(vocab_size, 50),
     nn.ReLU(),
-    nn.Linear(50, 2), 
+    nn.Linear(50, 2),
     nn.Softmax(dim=1) #axis
     )
     #hyperparameters
-    optimizer = torch.optim.Adam(network.parameters(), lr = 0.02)
+    optimizer = torch.optim.Adam(network.parameters(), lr = 0.01, weight_decay = 0.0001)
     loss_function = nn.CrossEntropyLoss() 
-    epochs = 1
+    epochs = 2
     #training
     
-    def train(train_loader):
+    def train(train_loader, validation_loader):
         t_losses=[]
+        best_accuracy = 0
 
         for epoch in range(epochs):
             t_loss = 0
@@ -120,10 +121,18 @@ if __name__ == "__main__":
                     ),
                     end=''
                 )
-        print("\nDone!")
+        # Calculate the best model        
+            x = accuracy(validation_loader)
+            if (x>best_accuracy):
+                best_accuracy = x
+                best_model = network
 
-    train(train_loader)
+
+        print("\nDone!")
+        return best_model
+
+    network = train(train_loader, validation_loader)
     x=accuracy(validation_loader)
     print("Accuracy = "+str(x*100)+"%")
-    torch.save(network, "network.pth")
-    pickle.dump(word_vectorizer, open("word_vectorizer.pickle", "wb"))
+    torch.save(network, "D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\network.pth")
+    pickle.dump(word_vectorizer, open("D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\word_vectorizer.pickle", "wb"))
