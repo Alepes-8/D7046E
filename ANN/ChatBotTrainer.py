@@ -12,6 +12,7 @@ from nltk.corpus import stopwords
 from nltk import word_tokenize
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, classification_report
 import pickle
+import os
 
 
 def preprocess_pandas(data, columns):
@@ -49,7 +50,11 @@ def accuracy(iterator): #get network accuracy on a dataset
 if __name__ == "__main__":
 
     # get data, pre-process and split
-    data = pd.read_csv("D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\amazon_cells_labelled.txt", delimiter='\t', header=None)
+    
+    dirname = os.path.dirname(os.path.abspath("ANN"))
+    filename = os.path.join(dirname, 'ANN\\amazon_cells_labelled_2.txt')
+
+    data = pd.read_csv(filename, delimiter='\t', header=None)
     data.columns = ['Sentence', 'Class']
     data['index'] = data.index                                          # add new column index
     columns = ['index', 'Class', 'Sentence']
@@ -86,7 +91,7 @@ if __name__ == "__main__":
     network = nn.Sequential( 
     nn.Linear(vocab_size, 50),
     nn.ReLU(),
-    nn.Linear(50, 2),
+    nn.Linear(50, 13),
     nn.Softmax(dim=1) #axis
     )
     #hyperparameters
