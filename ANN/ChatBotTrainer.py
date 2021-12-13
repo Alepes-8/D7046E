@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # get data, pre-process and split
     
     dirname = os.path.dirname(os.path.abspath("ANN"))
-    filename = os.path.join(dirname, 'ANN\\amazon_cells_labelled_2.txt')
+    filename = os.path.join(dirname, 'ANN\\amazon_cells_labelled.txt')
 
     data = pd.read_csv(filename, delimiter='\t', header=None)
     data.columns = ['Sentence', 'Class']
@@ -139,5 +139,11 @@ if __name__ == "__main__":
     network = train(train_loader, validation_loader)
     x=accuracy(validation_loader)
     print("Accuracy = "+str(x*100)+"%")
-    torch.save(network, "D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\network.pth")
-    pickle.dump(word_vectorizer, open("D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\word_vectorizer.pickle", "wb"))
+
+    dirname = os.path.dirname(os.path.abspath("ANN"))
+    filename = os.path.join(dirname, 'ANN\\network.pth')
+    torch.save(network, filename)
+
+    dirname = os.path.dirname(os.path.abspath("ANN"))
+    filename = os.path.join(dirname, 'ANN\\word_vectorizer.pickle')
+    pickle.dump(word_vectorizer, open(filename, "wb"))

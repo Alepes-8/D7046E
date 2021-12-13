@@ -1,8 +1,15 @@
 from ChatBotTrainer import *
 
 #load saved states of trained network
-network = torch.load("D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\network.pth")  
-word_vectorizer = pickle.load(open("D:\\Downloads\\plugg\\ANN project\\src\\D7046E\\ANN\\word_vectorizer.pickle", "rb"))
+
+
+dirname = os.path.dirname(os.path.abspath("ANN"))
+filename = os.path.join(dirname, 'ANN\\network.pth')
+network = torch.load(filename)  
+
+dirname = os.path.dirname(os.path.abspath("ANN"))
+filename = os.path.join(dirname, 'ANN\\word_vectorizer.pickle')
+word_vectorizer = pickle.load(open(filename, "rb"))
 
 labels = {
     0:  'empty',
@@ -31,7 +38,8 @@ while True:
     prediction= network(validation_x_tensor)
     guess = torch.argmax(prediction, dim=-1)
 
-    print("This sentence has the feeling of: " + labels[guess.item()])
+    # Example of how the labels dict can be used
+    #print("This sentence has the feeling of: " + labels[guess.item()])
 
 
     #logic for handling the bots' reply 
@@ -39,17 +47,17 @@ while True:
     
 
 
-    #if ((guess.item()==0 and prediction[0][0]>0.8) or (guess.item()==1 and prediction[0][1]>0.8)):  #the network be more than 80% about its reply otherwise the user need to elaborate          
-    #    if(guess.item()==0):
-    #        print("BOT:Im very sorry to hear that, we will take it into consideration")
-    #    else:
-    #        print("BOT:Glad to Hear that")
+    if ((guess.item()==0 and prediction[0][0]>0.8) or (guess.item()==1 and prediction[0][1]>0.8)):  #the network be more than 80% about its reply otherwise the user need to elaborate          
+        if(guess.item()==0):
+            print("BOT:Im very sorry to hear that, we will take it into consideration")
+        else:
+            print("BOT:Glad to Hear that")
 
-    #    print("BOT:Anything else? Y/N")
-    #    x = input()
-    #    if(x=="N"):
-    #        break
-    #else:
-    #    print("BOT:I did not understand, Try to be more specific")
+        print("BOT:Anything else? Y/N")
+        x = input()
+        if(x=="N"):
+            break
+    else:
+        print("BOT:I did not understand, Try to be more specific")
 
 
