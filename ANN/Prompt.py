@@ -27,9 +27,9 @@ labels = {
     12: 'anger'
 }
 
-
-while True:
-    print("BOT:is there a problem with the product or service here at amazon?")
+loop = True
+while (loop == True):
+    print("BOT:What did you think about the product?")
     x = input()
     #preprocessing of reply needs to added, i suppose
     validation_data = word_vectorizer.transform([x])
@@ -55,8 +55,8 @@ while True:
 
         print("BOT:Anything else? Y/N")
         x = input()
-        if(x=="N"):
-            break
+        if(x=="N" or x== "n"):
+            loop = False
     else:
         print("BOT:I did not understand, Try to be more specific")
 

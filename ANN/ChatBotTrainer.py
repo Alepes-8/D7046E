@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # get data, pre-process and split
     
     dirname = os.path.dirname(os.path.abspath("ANN"))
-    filename = os.path.join(dirname, 'ANN\\amazon_cells_labelled.txt')
+    filename = os.path.join(dirname, 'ANN\\testdataset.txt')
 
     data = pd.read_csv(filename, delimiter='\t', header=None)
     data.columns = ['Sentence', 'Class']
@@ -91,13 +91,15 @@ if __name__ == "__main__":
     network = nn.Sequential( 
     nn.Linear(vocab_size, 50),
     nn.ReLU(),
-    nn.Linear(50, 13),
+    nn.Linear(50, 25),
+    nn.ReLU(),
+    nn.Linear(25, 6),
     nn.Softmax(dim=1) #axis
     )
     #hyperparameters
     optimizer = torch.optim.Adam(network.parameters(), lr = 0.01, weight_decay = 0.0001)
     loss_function = nn.CrossEntropyLoss() 
-    epochs = 2
+    epochs = 1
     #training
     
     def train(train_loader, validation_loader):
@@ -122,7 +124,7 @@ if __name__ == "__main__":
                 #Print the epoch, batch, and loss
                 print(
                     '\rEpoch {} [{}/{}] - t_loss: {}'.format(
-                        epochs, batch_nr+1, len(train_loader), loss
+                        epoch, batch_nr+1, len(train_loader), loss
                     ),
                     end=''
                 )
