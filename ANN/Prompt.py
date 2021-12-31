@@ -1,11 +1,12 @@
 from ChatBotTrainer import *
+import Questions
 
 #load saved states of trained network
 
 
 dirname = os.path.dirname(os.path.abspath("ANN"))
 filename = os.path.join(dirname, 'ANN\\network.pth')
-network = torch.load(filename)  
+network = torch.load(filename)
 
 dirname = os.path.dirname(os.path.abspath("ANN"))
 filename = os.path.join(dirname, 'ANN\\word_vectorizer.pickle')
@@ -27,14 +28,16 @@ labels = {
     12: 'anger'
 }
 
+questions = Questions.Questions("ANN\\questions.txt")
+
 loop = True
 while (loop == True):
-    print("BOT:What did you think about the product?")
+    print(questions.random()) # try questions.random_rm() to show every question only ones (Then don't loop more then number of questions times)
     x = input()
     #preprocessing of reply needs to added, i suppose
     validation_data = word_vectorizer.transform([x])
     validation_data = validation_data.todense()
-    validation_x_tensor = torch.from_numpy(np.array(validation_data)).type(torch.FloatTensor)  
+    validation_x_tensor = torch.from_numpy(np.array(validation_data)).type(torch.FloatTensor)
     prediction= network(validation_x_tensor)
     guess = torch.argmax(prediction, dim=-1)
 
@@ -42,12 +45,12 @@ while (loop == True):
     #print("This sentence has the feeling of: " + labels[guess.item()])
 
 
-    #logic for handling the bots' reply 
+    #logic for handling the bots' reply
     #print(prediction) #to check if statement below is correct
-    
 
 
-    if ((guess.item()==0 and prediction[0][0]>0.8) or (guess.item()==1 and prediction[0][1]>0.8)):  #the network be more than 80% about its reply otherwise the user need to elaborate          
+
+    if ((guess.item()==0 and prediction[0][0]>0.8) or (guess.item()==1 and prediction[0][1]>0.8)):  #the network be more than 80% about its reply otherwise the user need to elaborate
         if(guess.item()==0):
             print("BOT:Im very sorry to hear that, we will take it into consideration")
         else:
