@@ -29,10 +29,12 @@ labels = {
 }
 
 questions = Questions.Questions("ANN\\questions.txt")
+question_rnd = questions.random # try questions.random_rm() to show every question only ones (Then don't loop more then number of questions times)
 
 loop = True
+question = question_rnd()
 while (loop == True):
-    print(questions.random()) # try questions.random_rm() to show every question only ones (Then don't loop more then number of questions times)
+    print(question)
     x = input()
     #preprocessing of reply needs to added, i suppose
     validation_data = word_vectorizer.transform([x])
@@ -60,7 +62,7 @@ while (loop == True):
         x = input()
         if(x=="N" or x== "n"):
             loop = False
+
+        question = question_rnd()
     else:
         print("BOT:I did not understand, Try to be more specific")
-
-
