@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # get data, pre-process and split
     
     dirname = os.path.dirname(os.path.abspath("ANN"))
-    filename = os.path.join(dirname, 'ANN\\testdataset.txt')
+    filename = os.path.join(dirname, 'amazon_cells_labelled.txt')
 
     data = pd.read_csv(filename, delimiter='\t', header=None)
     data.columns = ['Sentence', 'Class']
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     nn.ReLU(),
     nn.Linear(50, 25),
     nn.ReLU(),
-    nn.Linear(25, 6),
+    nn.Linear(25, 2),
     nn.Softmax(dim=1) #axis
     )
     #hyperparameters
@@ -143,9 +143,9 @@ if __name__ == "__main__":
     print("Accuracy = "+str(x*100)+"%")
 
     dirname = os.path.dirname(os.path.abspath("ANN"))
-    filename = os.path.join(dirname, 'ANN\\network.pth')
+    filename = os.path.join(dirname, 'network.pth')
     torch.save(network, filename)
 
     dirname = os.path.dirname(os.path.abspath("ANN"))
-    filename = os.path.join(dirname, 'ANN\\word_vectorizer.pickle')
+    filename = os.path.join(dirname, 'word_vectorizer.pickle')
     pickle.dump(word_vectorizer, open(filename, "wb"))
