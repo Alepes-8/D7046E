@@ -5,11 +5,11 @@ import Questions
 
 
 dirname = os.path.dirname(os.path.abspath("ANN"))
-filename = os.path.join(dirname, 'ANN\\network.pth')
+filename = os.path.join(dirname, 'network.pth')
 network = torch.load(filename)
 
 dirname = os.path.dirname(os.path.abspath("ANN"))
-filename = os.path.join(dirname, 'ANN\\word_vectorizer.pickle')
+filename = os.path.join(dirname, 'word_vectorizer.pickle')
 word_vectorizer = pickle.load(open(filename, "rb"))
 
 labels = {
@@ -28,8 +28,8 @@ labels = {
     12: 'anger'
 }
 
-questions = Questions.Questions("ANN\\questions.txt")
-question_rnd = questions.random # try questions.random_rm() to show every question only ones (Then don't loop more then number of questions times)
+questions = Questions.Questions("questions.txt")
+question_rnd = questions.random_rm # try questions.random_rm() to show every question only ones (Then don't loop more then number of questions times)
 
 loop = True
 question = question_rnd()
@@ -54,7 +54,7 @@ while (loop == True):
 
     if ((guess.item()==0 and prediction[0][0]>0.8) or (guess.item()==1 and prediction[0][1]>0.8)):  #the network be more than 80% about its reply otherwise the user need to elaborate
         if(guess.item()==0):
-            print("BOT:Im very sorry to hear that, we will take it into consideration")
+            print("BOT:Im very sorry to hear that.")
         else:
             print("BOT:Glad to Hear that")
 
